@@ -1,0 +1,55 @@
+/* the global css for each content page */
+.content-global-style {
+    width: 100rem;
+    padding: 1rem;
+    text-align: left;
+    align-content: center;
+    align-items: center;
+    align-self: center;
+}
+
+/* the text header for each content page */
+.content-header {
+    width: fit-content;
+    padding: 1rem;
+    text-align: left;
+    font-family: 'Consolas', monospace;
+}
+
+/* the 2nd text header for each content page */
+.content-header-2nd {
+    width: fit-content;
+    text-align: left;
+    padding-left: 1rem;
+    font-family: 'Consolas', monospace;
+}
+
+/* the round rectangular background for each block */
+.round-rectangle-background {
+    border-radius: 1rem;
+    width: 41rem;
+    height: 11rem;
+    background-color: #5c5c5c;
+}
+
+/* the round rectangular foreground for the 4 important statistics */
+.round-rectangle-foreground {
+    margin-left: 1rem;
+    margin-top: 1rem;
+    width: 9rem;
+    height: 9rem;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    border-radius: 1.5rem;
+    display: inline-block;
+    background-color: #8c8c8c;
+    color: #ffffff;
+
+}
+
+/* the number in the round rectangular foreground */
+.round-rectangle-foreground-number {
+    font-size: x-large;
+    font-weight: bold;
+    line-height: 1;
+}

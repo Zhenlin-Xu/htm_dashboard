@@ -78,7 +78,10 @@ barplot_spatial_speed_tramline = html.Div(
 )
 
 CDF_STYLE = {
-
+    "width": "fit-content",
+    "display": 'flex',
+    'justify-content': 'center',
+    'align-items': 'center'
 }
 cdf_speed_tramline_figure = px.ecdf(
     data_frame=n_os_per_speed_per_line[
@@ -86,6 +89,10 @@ cdf_speed_tramline_figure = px.ecdf(
     ],
     x="speed",
     color="direction",
+)
+cdf_speed_tramline_figure.update_layout(
+    legend=dict(yanchor="top", y=0.19, xanchor="right", x=0.99),
+    margin=dict(l=10, r=0, b=0, t=25),
 )
 cdf_speed_tramline = html.Div(
     children=[
@@ -96,28 +103,28 @@ cdf_speed_tramline = html.Div(
     style=CDF_STYLE
 )
 
-SPATIAL_TRAMLINE_STYLE = {
-    "position": "fixed",
-    "width": "fit-content",
-    "margin-left": "10rem",
-    "padding": "1rem",
-}
 spatial_tramline_layout = html.Div(
     children=[
-        html.H2("Spatial analysis | Tramline"),
+        html.H2(html.Strong("Spatial analysis - Tramline"), className="content-header"),
         html.Hr(),
         barplot_spatial_tramline,
-        dcc.Dropdown(
-            options=n_os_per_speed_per_line["line"].unique(),
-            multi=True,
-            style={
-                "width": "40rem",
-                # "padding": "0.5rem",
-                # "background-color": "#f8f9fa",
-            }
-        ),
+        # dcc.Dropdown(
+        #     options=n_os_per_speed_per_line["line"].unique(),
+        #     multi=True,
+        #     style={
+        #         "width": "40rem",
+        #         # "padding": "0.5rem",
+        #         # "background-color": "#f8f9fa",
+        #     }
+        # ),
         barplot_spatial_speed_tramline,
         cdf_speed_tramline,
     ],
-    style=SPATIAL_TRAMLINE_STYLE,
+    className="content-global-style",
+    style={
+        # 'display': 'flex',
+        'background-color': '#7c7c7c',
+        'justify-content': 'center',
+        'align-items': 'center',
+        'height': '100vh'},
 )

@@ -15,17 +15,18 @@ SIDEBAR_STYLE = {
 #TODO: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
 sidebar = dbc.Nav(
     children=[
+        html.P("Dashboard"),
         dbc.NavLink("Overview", href="/", active="exact"),
         html.Hr(),
         # dbc.NavLink("Spatial analysis", href='/spatial', active="exact"),
         html.P("Spatial analysis"),
-        dbc.NavLink("Switch", href='spatial/switch', active="exact"),
-        dbc.NavLink("Tramline", href='spatial/tramline', active="exact"),
+        dbc.NavLink("Switch", href='spatial_switch', active="exact"),
+        dbc.NavLink("Tramline", href='spatial_tramline', active="exact"),
         html.Hr(),
         # dbc.NavLink("Temporal analysis", href='/temporal', active="exact"),
         html.P("Temporal analysis"),
-        dbc.NavLink("Switch", href='temporal/switch', active="exact"),
-        dbc.NavLink("Tramline", href='temporal/tramline', active="exact"),
+        dbc.NavLink("Switch", href='temporal_switch', active="exact"),
+        dbc.NavLink("Tramline", href='temporal_tramline', active="exact"),
     ],
     vertical=True,
     pills=True,

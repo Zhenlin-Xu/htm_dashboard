@@ -1,60 +1,53 @@
 from dash import html, dcc, dash_table
+import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 import plotly.express as px
 
 from data import *
 
 # top-left corner
-ROUNDRECTANGLE_STYLE = {
-    "width": "9rem",
-    "height": "10rem",
-    "margin-left": "1rem",
-    "padding": "1rem",
-    "background-color": "#f2f9fa",
-    "display": "inline-block"
-}
 round_rectangles = html.Div(
     children=[
         html.Div(
             children=[
                 html.P("Overall overspeeding"),
-                html.H3(f"{len(overspeed)}"),
+                html.P(f"{len(overspeed)}", className="round-rectangle-foreground-number"),
                 html.P("in 2023")
             ],
-            style=ROUNDRECTANGLE_STYLE
+            className="round-rectangle-foreground"
         ),
         html.Div(
             children=[
                 html.P("Straight overspeeding"),
-                html.H3(f"{len(straight_overspeed)}"),
+                html.P(f"{len(straight_overspeed)}", className="round-rectangle-foreground-number"),
                 html.P("in 2023")
             ],
-            style=ROUNDRECTANGLE_STYLE
+            className="round-rectangle-foreground"
         ),
         html.Div(
             children=[
                 html.P("Turning overspeeding"),
-                html.H3(f"{len(turning_overspeed)}"),
+                html.P(f"{len(turning_overspeed)}", className="round-rectangle-foreground-number"),
                 html.P("in 2023")
             ],
-            style=ROUNDRECTANGLE_STYLE,
+            className="round-rectangle-foreground"
         ),
         html.Div(
             children=[
-                html.P("% of overspeeding"),
-                html.H3(f"{len(overspeed)/len(speed):.2f}"),
+                html.P("Percentage of overspeeding"),
+                html.P(f"{len(overspeed)/len(speed):.2f}", className="round-rectangle-foreground-number"),
                 html.P("in 2023")
             ],
-            style=ROUNDRECTANGLE_STYLE,
+            className="round-rectangle-foreground"
         ),
     ],
+    className="round-rectangle-background"
 )
 
 # middle-left: map
 # https://www.dash-leaflet.com
 OVERVIEW_MAP_STYLE = {
     "position": "fixed",
-    "width": "80rem",
 }
 overview_map_figure = dl.Map(
     children=[
@@ -69,18 +62,10 @@ overview_map_figure = dl.Map(
     ],
     center=[52.08, 4.30],
     zoom=13,
-    style={'height': '60vh'}
+    style={"height": "70vh", "width": "25vw"}
 )
-#     px.scatter_geo(
-#     data_frame=data.query("year == 2027"),
-#     locations="iso_alpha",
-#     size="pop",
-#     width=600,
-#     height=400,
-#     title="The spatial distribution of the switch",
-# )
-overview_map = html.Div(
-    overview_map_figure,
+overview_map = dbc.Container(
+    children=overview_map_figure,
     style={"margin-top": "1rem"},
 )
 
@@ -133,9 +118,9 @@ overview_histogram = html.Div(
         ),
     ],
     style={
-        "margin-top": "1rem",
-        "width": "50rem",
-        "height": "20rem",
+    #     "margin-top": "1rem",
+        "width": "35rem",
+        "height": "30rem",
     }
 )
 
@@ -150,33 +135,34 @@ overview_topN_table = html.Div(
             page_size=10,
         )
     ],
-    style={"margin-top": "10rem", "width": "50rem"}
+    style={
+        # "margin-top": "10rem",
+        "width": "30rem",
+    }
 )
 
-OVERVIEW_LEFT_STYLE = {
-    "position": "fixed",
-    "width": "42rem",
-    "padding": "1rem",
-    "background-color": "#f8f9fa",
-}
-overview_left = html.Div(
+overview_left = dbc.Container(
     children=[
         round_rectangles,
         overview_map,
         # overview_heatmap,
     ],
-    style=OVERVIEW_LEFT_STYLE,
+    style={
+        "display": "inline-block",
+        "width": "26.5vw",
+        "margin-left": "1rem",
+    }
 )
 
 OVERVIEW_RIGHT_STYLE = {
-    "position": "fixed",
-    "margin-left": "44rem",
-    # "margin-top": "1rem",
-    "padding": "1rem",
-    "width": "55rem",
-    "background-color": "#f8f9fa",
+    "margin-top": "-70rem",
+    "margin-left": "45rem",
+    # "padding": "1rem",
+    "width": "30rem",
+    "height": "40rem",
+    # "display": "inline-block",
 }
-overview_right = html.Div(
+overview_right = dbc.Container(
     children=[
         overview_histogram,
         overview_topN_table
@@ -184,20 +170,14 @@ overview_right = html.Div(
     style=OVERVIEW_RIGHT_STYLE,
 )
 
-OVERVIEW_STYLE = {
-    "position": "fixed",
-    "margin-left": "10rem",
-    "padding": "1rem",
-}
-
-overview = html.Div(
+overview_layout = dbc.Container(
     children=[
-        html.H2("Overview"),
+        html.H2(html.Strong("Overview"), className="content-header"),
         html.Hr(),
         overview_left,
         overview_right,
     ],
-    style=OVERVIEW_STYLE,
+    className="content-global-style"
 )
 
 # TODO: overview page:
