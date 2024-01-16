@@ -12,6 +12,7 @@ SIDEBAR_STYLE = {
     "background-color": "#f8f9fa",
 }
 
+#TODO: https://dash-bootstrap-components.opensource.faculty.ai/examples/simple-sidebar/
 sidebar = dbc.Nav(
     children=[
         dbc.NavLink("Overview", href="/", active="exact"),

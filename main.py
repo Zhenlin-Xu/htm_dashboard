@@ -27,8 +27,12 @@ app.layout = html.Div(
 
 app.run_server(debug=True, port=10010)
 
+# TODO:
+# 1. scalable layout
+# 3. Interactive UX
+# 2. CSS beautification
 
-#TODO: 2 spatial-tramline layout
+
 #TODO: 3 spatial-switch layout
 #TODO: 4 temporal-tramline layout
 #TODO: 5 temporal-switch layout
