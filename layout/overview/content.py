@@ -65,7 +65,8 @@ overview_map = dbc.Container(
 
 overview_layout = html.Div(
 	children=[
-		html.H2("Overview"),
+		html.H2("Overspeeding dashboard"),
+		html.H4("Overview"),
 		html.Hr(),
 		round_rectangles,
 		overview_map,

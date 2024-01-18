@@ -1,12 +1,10 @@
 import os
 import pandas as pd
-import plotly.express as px
 
 
 SPEED_LIMIT = 15
-csv_path = os.path.join(os.getcwd(), "dataset\switch_speed_data.csv")
-print(csv_path)
-speed = pd.read_csv(csv_path, index_col=0, parse_dates=["hfk_in"])
+csv_path = os.path.join(os.getcwd(), "dataset/switch_speed_data.csv")
+speed = pd.read_csv(csv_path, parse_dates=["hfk_in"])
 speed["#week"] = speed["hfk_in"].dt.isocalendar()["week"]
 speed["#day"] = speed["hfk_in"].dt.isocalendar()["day"]
 
@@ -83,16 +81,3 @@ assert len(overspeed) == len(straight_overspeed) + len(turning_overspeed)
 # 	[n_str_os_per_speed_per_line,
 # 	 n_trn_os_per_speed_per_line],
 # )
-
-# Temporal tramline
-straight_temporal_tramline_grpby = straight_overspeed[
-	["line", "#week", "#day"]].groupby(["#week", "#day"]).count()
-straight_temporal_tramline_grpby = pd.concat(
-	[straight_temporal_tramline_grpby,
-	 straight_temporal_tramline_grpby.index.to_frame()],
-	axis=1)
-straight_temporal_tramline_grpby = straight_temporal_tramline_grpby.pivot(
-	columns="#week",
-	index="#day",
-	values="line",
-)
