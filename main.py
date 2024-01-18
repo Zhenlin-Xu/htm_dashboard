@@ -31,7 +31,7 @@ content = dbc.Container(
 
 app.layout = dbc.Container(
     children=[
-        dcc.Location(id="url"),
+
         sidebar,
         content
     ],

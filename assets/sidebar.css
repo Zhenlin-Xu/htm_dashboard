@@ -1,0 +1,11 @@
+#sidebar_container {
+    width: 7.5vw;
+    height: 100vh;
+    text-align: left;
+    padding: 1rem;
+    font-family: "Consolas", monospace;
+    font-size: medium;
+    color: white;
+    background-color: #8c8c8c;
+    display: inline-block;
+}

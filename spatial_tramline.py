@@ -1,7 +1,6 @@
-from dash import html, dcc, Input, Output
-import plotly.express as px
+from dash import html, dcc
 
-from data import *
+from data_process.data import *
 
 BARPLOT_SPATIAL_TRAMLINE_STYLE = {
     "width": "fit-content",

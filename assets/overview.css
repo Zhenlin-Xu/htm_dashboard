@@ -1,0 +1,17 @@
+.round_rectangle {
+    display: inline-block;
+    width: 5vw;
+    height: 10vh;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin-right: 0.5rem;
+    color: white;
+    background-color: #8c8c8c;
+}
+
+.round_rectangles {
+    background-color: #5c5c5c;
+    width: 22vw;
+    padding: 0.5rem;
+    /*margin-left: 0rem;*/
+}

@@ -1,9 +1,8 @@
 from dash import html, dcc, dash_table
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
-import plotly.express as px
 
-from data import *
+from data_process.data import *
 
 # top-left corner
 round_rectangles = html.Div(
