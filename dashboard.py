@@ -9,9 +9,10 @@ from layout.spatial.tramline.content import spatial_tramline_layout
 from layout.temporal.switch.content import temporal_switch_layout
 from layout.temporal.tramline.content import temporal_tramline_layout
 
+
 app = dash.Dash(
 	name=__name__,
-	external_stylesheets=[dbc.themes.BOOTSTRAP],
+	external_stylesheets=[dbc.themes.UNITED],
 	suppress_callback_exceptions=True)
 
 content = html.Div(id="content")

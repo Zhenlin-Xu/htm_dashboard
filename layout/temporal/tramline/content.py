@@ -92,7 +92,7 @@ histogram_tramline = dcc.Graph(
 
 temporal_tramline_layout = html.Div(
 	children=[
-		html.H2("Temporal analysis"),
+		html.H2("Temporal analysis", style={"display": "flex"}),
 		html.H4("Tramline"),
 		html.Hr(),
 		dbc.Container(children=[tramline_input, type_input], style={"display": "inline-block"}),
