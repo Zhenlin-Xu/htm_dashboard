@@ -84,7 +84,7 @@ histogram_speed_tramline = dcc.Graph(
 spatial_tramline_layout = html.Div(
 	children=[
 		html.H2("Spatial analysis"),
-		html.H4("Tramline"),
+		html.H4([dbc.Badge("Tramline", color="danger", pill=True)]),
 		html.Hr(),
 		html.Div(
 			children=[

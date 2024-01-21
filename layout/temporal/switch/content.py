@@ -3,6 +3,7 @@ from dash import html, dcc, callback, Input, Output
 import dash_daq as daq
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import plotly.graph_objects as go
 
 from data_process.data import (
 	speed, overspeed, straight_overspeed, turning_overspeed,
@@ -34,13 +35,17 @@ def gen_temporal_tramline_heatmap(switch_input, switch_type_input):
 	switch = switch.pivot(columns="#week", index="#day", values="switch_number")
 	# draw the heatmap
 	heatmap = px.imshow(
-		img=switch, x=switch.columns, y=switch.index, color_continuous_scale="reds",
+		img=switch, x=switch.columns, y=switch.index,
+		color_continuous_scale="reds",
+		range_color=[0, 500],
 		title=f"The temporal distribution of {switch_type_input} over-speeding for switch {switch_input}.", )
 	# specify the layout details
 	heatmap.update_layout(
-		coloraxis_colorbar=dict(orientation="v", len=0.75),
+		coloraxis_colorbar=dict(len=0.5),
 		margin=dict(t=10, b=0, ),
-		title=dict(x=0.05, y=0.9)
+		title=dict(x=0.05, y=0.9),
+		yaxis=dict(tickmode="linear", range=[1, 7], dtick=1),
+		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
 	return [heatmap, ]
 
@@ -60,49 +65,76 @@ def gen_temporal_tramline_histogram(switch_input, switch_logy_button):
 		y="switch_number",
 		color="is_straight",
 		animation_frame="month",
-		nbins=len(tramline_month_speed["speed"].unique()),
+		nbins=55,
 		log_y=switch_logy_button,
 		height=500,
 	)
 	# add the speed limit vertical line.
-	histogram.add_vline(x=15, line_color="red", line_width=2)
+	histogram.add_vline(x=15, line_color="yellow", line_width=2)
 	# adjust the position of the legend.
 	histogram.update_layout(
 		legend=dict(x=0.9, y=0.99),
-		title=dict(text=f"The histogram of speed distribution in for switch {switch_input}."),
+		title=dict(text=f"Histogram of monthly speed distribution of tramline {switch_input}."),
+		xaxis_title="speed",
+		yaxis_title="#overspeed records",
+		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
 	return [histogram, ]
+
+
+@callback(
+	[Output("temporal_switch_response", "children"),
+	 Output("temporal_switch_response2", "children")],
+	[Input("switch_input", "value"),
+	Input("switch_type_input", "value"),
+	Input("switch_logy_button", "value"),])
+def temporal_switch_response(switch_input, switch_type_input, switch_logy_button):
+	logy_button = "" if switch_logy_button else "not"
+	return [f"Hello, you have selected switch {switch_input} and {switch_type_input} overspeed for inspection.",
+			f"Hello, you have selected switch {switch_logy_button} and the histogram's y-axis is {logy_button} in log-scale."]
 
 
 switch_input = dcc.Dropdown(
 	options=overspeed["switch_number"].unique(),
 	value="W127",
 	id="switch_input",
-	style={"width": "20vw", "display": "inline-block"})
+	# placeholder="Select a switch",
+	style={"width": "5rem", "display": "inline-block"})
 type_input = dcc.Dropdown(
 	options=["overall", "straight", "turning"],
 	value="overall",
 	id="switch_type_input",
-	style={"width": "20vw", "display": "inline-block", "margin-left": "3rem"})
+	# placeholder="Select the type of overspeed",
+	style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"})
+logY_button = daq.ToggleSwitch(
+	id="switch_logy_button", value=False, label="log-y", labelPosition='right', size=50,
+	color="red", style={"margin-left": "1rem", "margin-top": "-1rem", "height": "2rem", "display": "inline-block",})
 heatmap_switch = dcc.Graph(
 	id="heatmap_switch",
-	className="heatmap")
-logY_button = daq.ToggleSwitch(
-	id="switch_logy_button", value=False, label="Log y", labelPosition='right', size=50,
-	color="red", style={"width": "5vw"})
+	style={"height": "30vh"},
+)
 histogram_switch = dcc.Graph(
 	id="histogram_switch",
-	className="histogram_month_speed")
+	style={"height": "45vh"}
+)
 
 temporal_switch_layout = html.Div(
 	children=[
-		html.H2("Temporal analysis"),
-		html.H4("Switch"),
+		html.H2("Temporal analysis "),
+		html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
 		html.Hr(),
-		dbc.Container(children=[switch_input, type_input], style={"display": "inline-block"}),
+		dbc.Container(children=[
+			switch_input,
+			type_input,
+			html.Div(id="temporal_switch_response", style={"display": "inline-block", "margin-left": "2rem", }),
+		], style={"display": "inline-block"}),
 		heatmap_switch,
 		html.Hr(),
-		logY_button,
+		dbc.Container(children=[
+				logY_button,
+				html.Div(id="temporal_switch_response2", style={"display": "inline-block", "margin-left": "2rem", }),
+		]
+		),
 		histogram_switch,
 	],
 	className="content_container",

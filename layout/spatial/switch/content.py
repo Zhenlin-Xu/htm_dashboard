@@ -74,8 +74,8 @@ spatial_switch_cdf = dcc.Graph(id="spatial_switch_cdf", style={"width": "24vw", 
 
 spatial_switch_layout = html.Div(
 	children=[
-		html.H2("Spatial analysis"),
-		html.H4("Switch"),
+		html.H2("Spatial analysis "),
+		html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
 		html.Hr(),
 		dbc.Container(
 			children=[
@@ -103,7 +103,7 @@ spatial_switch_layout = html.Div(
 				spatial_switch_cdf,
 			],
 			style={
-				"width": "17vw",
+				"width": "20vw",
 				"height": "90vh",
 				"background-color": "rgb(255,20,210)",
 				"margin-left": "25vw",

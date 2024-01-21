@@ -19,5 +19,6 @@ sidebar_layout = dbc.Nav(
 	],
 	vertical=True,
 	pills=True,
+	fill=True,
 	id="sidebar_container",
 )
