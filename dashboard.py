@@ -13,7 +13,7 @@ from layout import temporal_tramline_layout
 app = dash.Dash(
 	name=__name__,
 	external_stylesheets=[dbc.themes.UNITED],
-	suppress_callback_exceptions=True
+	suppress_callback_exceptions=True,
 )
 
 content = dbc.Container(id="content")

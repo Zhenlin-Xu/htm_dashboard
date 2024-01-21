@@ -8,6 +8,9 @@ speed = pd.read_csv(csv_path, parse_dates=["hfk_in"])
 speed["#week"] = speed["hfk_in"].dt.isocalendar()["week"]
 speed["#day"] = speed["hfk_in"].dt.isocalendar()["day"]
 
+
+straight_speed = speed[speed["is_straight"] == True].shape[0]
+turning_speed = speed[speed["is_straight"] == False].shape[0]
 overspeed = speed[speed["speed"] > SPEED_LIMIT]
 straight_overspeed = overspeed[overspeed["is_straight"] == True]
 turning_overspeed = overspeed[overspeed["is_straight"] == False]
