@@ -1,6 +1,7 @@
+import warnings
 import dash
 import dash_bootstrap_components as dbc
-from dash import html, dcc, Input, Output
+from dash import dcc, Input, Output
 
 from layout import sidebar_layout
 from layout import overview_layout
@@ -9,6 +10,8 @@ from layout import spatial_tramline_layout
 from layout import temporal_switch_layout
 from layout import temporal_tramline_layout
 
+
+warnings.filterwarnings("ignore")
 
 app = dash.Dash(
 	name=__name__,

@@ -15,6 +15,7 @@ from data_process.data import *
 )
 def gen_overview_speed_distribution(overview_logy_button):
 	data_frame = speed[["speed", "line", "is_straight"]]
+	data_frame['is_straight'] = data_frame['is_straight'].map({True: 'Straight', False: 'Turning'}).astype(str)
 	data_frame = data_frame.groupby(["is_straight", "speed"]).count()
 	data_frame.reset_index(inplace=True)
 	# draw the histogram
@@ -23,14 +24,16 @@ def gen_overview_speed_distribution(overview_logy_button):
 		color="is_straight",
 		log_y=True if overview_logy_button == "log" else False,
 		nbins=len(data_frame["speed"].unique()),
+		color_discrete_map={"Straight": "red", "Turning": "blue"},
+		# template="ggplot2",
 	)
 	# draw the vertical line of the speed limit 15 km/h
-	speed_distribution_figure.add_vline(x=15, line_color="red", line_width=2)
+	speed_distribution_figure.add_vline(x=15, line_color="yellow", line_width=3)
 	speed_distribution_figure.update_layout(
 		xaxis_title="Speed (km/h)",
 		yaxis_title="#Overspeed records",
 		# title="The speed distribution",
-		legend=dict(title="Type", x=0.92, y=0.99),
+		legend=dict(title="Type", x=0.925, y=1),
 		margin=dict(l=0, r=0, t=0, b=0),
 		xaxis=dict(tickmode="linear", range=[1, len(data_frame["speed"].unique())], dtick=1),
 	)
