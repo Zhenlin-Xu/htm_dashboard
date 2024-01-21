@@ -99,16 +99,19 @@ switch_input = dcc.Dropdown(
 	value="W127",
 	id="switch_input",
 	# placeholder="Select a switch",
-	style={"width": "5rem", "display": "inline-block"})
+	style={"width": "5rem", "display": "inline-block", "margin-left": "1rem"})
+
 type_input = dcc.Dropdown(
 	options=["overall", "straight", "turning"],
 	value="overall",
 	id="switch_type_input",
 	# placeholder="Select the type of overspeed",
-	style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"})
+	style={"width": "8rem", "display": "inline-block", "margin-left": "1rem"})
+
 logY_button = daq.ToggleSwitch(
 	id="switch_logy_button", value=False, label="log-y", labelPosition='right', size=50,
 	color="red", style={"margin-left": "1rem", "margin-top": "-1rem", "height": "2rem", "display": "inline-block",})
+
 heatmap_switch = dcc.Graph(
 	id="heatmap_switch",
 	style={"height": "30vh"},
@@ -123,17 +126,38 @@ temporal_switch_layout = html.Div(
 		html.H2("Temporal analysis "),
 		html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
 		html.Hr(),
-		dbc.Container(children=[
-			switch_input,
-			type_input,
-			html.Div(id="temporal_switch_response", style={"display": "inline-block", "margin-left": "2rem", }),
-		], style={"display": "inline-block"}),
+		dbc.Container(
+			children=[
+				switch_input,
+				type_input,
+			],
+			style={"display": "inline-block"}
+		),
+		dbc.Badge(
+			color="info",
+			pill=True,
+			id="temporal_switch_response",
+			style={
+				"display": "inline-block",
+				"margin-left": "2rem",
+				"font-size": "medium",
+			},
+		),
 		heatmap_switch,
 		html.Hr(),
-		dbc.Container(children=[
+		dbc.Container(
+			children=[
 				logY_button,
-				html.Div(id="temporal_switch_response2", style={"display": "inline-block", "margin-left": "2rem", }),
-		]
+			]
+		),
+		dbc.Badge(
+			color="info",
+			pill=True,
+			id="temporal_switch_response2",
+			style={
+				"display": "inline-block",
+				"margin-left": "2rem",
+			}
 		),
 		histogram_switch,
 	],

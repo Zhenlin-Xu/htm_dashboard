@@ -2,27 +2,29 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc, Input, Output
 
-from layout.sidebar.content import sidebar_layout
-from layout.overview.content import overview_layout
-from layout.spatial.switch.content import spatial_switch_layout
-from layout.spatial.tramline.content import spatial_tramline_layout
-from layout.temporal.switch.content import temporal_switch_layout
-from layout.temporal.tramline.content import temporal_tramline_layout
+from layout import sidebar_layout
+from layout import overview_layout
+from layout import spatial_switch_layout
+from layout import spatial_tramline_layout
+from layout import temporal_switch_layout
+from layout import temporal_tramline_layout
 
 
 app = dash.Dash(
 	name=__name__,
 	external_stylesheets=[dbc.themes.UNITED],
-	suppress_callback_exceptions=True)
+	suppress_callback_exceptions=True
+)
 
-content = html.Div(id="content")
+content = dbc.Container(id="content")
 app.layout = dbc.Container(
 	children=[
 		dcc.Location(id="url"),
-		sidebar_layout,
+		# sidebar_layout,
 		content,
 	],
 	className="container",
+	fluid=True,
 )
 
 

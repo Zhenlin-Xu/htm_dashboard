@@ -53,7 +53,7 @@ def gen_temporal_tramline_heatmap(tramline_input, tramline_type_input):
 @callback([Output("histogram_tramline", "figure")], [
 	Input("tramline_input", "value"),
 	Input("tramline_logy_button", "value")],
-		  suppress_callback_exceptions=True)
+          suppress_callback_exceptions=True)
 def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 	tramline_month_speed = speed[speed["line"] == tramline_input]
 	tramline_month_speed = tramline_month_speed[["line", "speed", "is_straight", "month"]].groupby(
@@ -67,6 +67,9 @@ def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 		animation_frame="month",
 		nbins=55,
 		log_y=tramline_logy_button,
+		# labels={
+		# 	"is_straight": ["Straight", "Turning"],
+		# }
 		# height=400,
 	)
 	# current_frame_index = int(histogram_tramline * (len(histogram.frames) - 1))
@@ -74,25 +77,29 @@ def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 	histogram.add_vline(x=15, line_color="yellow", line_width=2)
 	# adjust the position of the legend.
 	histogram.update_layout(
-		legend=dict(x=0.9, y=0.99),
+		legend=dict(x=0.9, y=0.99, title="Type"),
 		title=dict(text=f"Histogram of monthly speed distribution of tramline {tramline_input}."),
-		xaxis_title="speed",
-		yaxis_title="#overspeed records",
+		xaxis_title="Speed",
+		yaxis_title="#Overspeed records",
 		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
 	return [histogram, ]
 
 
-@callback(
-	[Output("temporal_tramline_response", "children"),
-	 Output("temporal_tramline_response2", "children")],
-	[Input("tramline_input", "value"),
-	 Input("tramline_type_input", "value"),
-	 Input("tramline_logy_button", "value"),])
+@callback([
+	Output("temporal_tramline_response", "children"),
+	Output("temporal_tramline_response2", "children"),
+], [
+	Input("tramline_input", "value"),
+	Input("tramline_type_input", "value"),
+	Input("tramline_logy_button", "value"),
+])
 def temporal_tramline_response(tramline_input, tramline_type_input, tramline_logy_button):
 	logy_button = "" if tramline_logy_button else "not"
-	return [f"Hello, you have selected tramline {tramline_input} and {tramline_type_input} overspeed for inspection.",
-			f"Hello, you have selected tramline {tramline_input} and the histogram's y-axis is {logy_button} in log-scale."]
+	return [
+		f"Hello, you have selected tramline {tramline_input} and {tramline_type_input} overspeed for inspection.",
+		f"Hello, you have selected tramline {tramline_input} and the histogram's y-axis is {logy_button} in log-scale."
+	]
 
 
 tramline_input = dcc.Dropdown(
@@ -123,13 +130,13 @@ temporal_tramline_layout = html.Div(
 		dbc.Container(children=[
 			tramline_input,
 			type_input,
-			html.Div(id="temporal_tramline_response", style={"display": "inline-block", "margin-left": "2rem",}),
+			html.Div(id="temporal_tramline_response", style={"display": "inline-block", "margin-left": "2rem", }),
 		], style={"display": "inline-block"}),
 		heatmap_tramline,
 		html.Hr(),
 		dbc.Container(children=[
 			logY_button,
-			html.Div(id="temporal_tramline_response2", style={"display": "inline-block", "margin-left": "2rem",}),
+			html.Div(id="temporal_tramline_response2", style={"display": "inline-block", "margin-left": "2rem", }),
 		]),
 		histogram_tramline,
 	],
