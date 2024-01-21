@@ -1,6 +1,6 @@
 import dash_leaflet as dl
 import dash_bootstrap_components as dbc
-from dash import html, dcc
+from dash import html, dcc, callback, Input, Output
 import plotly.express as px
 
 from data_process.data import *
@@ -8,45 +8,52 @@ from data_process.data import *
 
 # HISTOGRAM
 # groupby operation
-data_frame = speed[["speed", "line", "is_straight"]]
-data_frame = data_frame.groupby(["is_straight", "speed"]).count()
-data_frame.reset_index(inplace=True)
-# draw the histogram
-speed_distribution_figure = px.histogram(
-	data_frame, x="speed", y="line",
-	color="is_straight",
-	log_y=True,
-	nbins=len(data_frame["speed"].unique()),
+
+@callback(
+	Output("speed_distribution_figure", "figure"),
+	Input("overview_logy_button", "value")
 )
-# draw the vertical line of the speed limit 15 km/h
-speed_distribution_figure.add_vline(x=15, line_color="red", line_width=2)
-speed_distribution_figure.update_layout(
-	xaxis_title="Speed (km/h)",
-	yaxis_title="#Overspeed records",
-	# title="The speed distribution",
-	legend=dict(title="Type", x=0.92, y=0.99),
-	margin=dict(l=0, r=0, t=0, b=0),
-	xaxis=dict(tickmode="linear", range=[1, len(data_frame["speed"].unique())], dtick=1),
-)
+def gen_overview_speed_distribution(overview_logy_button):
+	data_frame = speed[["speed", "line", "is_straight"]]
+	data_frame = data_frame.groupby(["is_straight", "speed"]).count()
+	data_frame.reset_index(inplace=True)
+	# draw the histogram
+	speed_distribution_figure = px.histogram(
+		data_frame, x="speed", y="line",
+		color="is_straight",
+		log_y=True if overview_logy_button == "log" else False,
+		nbins=len(data_frame["speed"].unique()),
+	)
+	# draw the vertical line of the speed limit 15 km/h
+	speed_distribution_figure.add_vline(x=15, line_color="red", line_width=2)
+	speed_distribution_figure.update_layout(
+		xaxis_title="Speed (km/h)",
+		yaxis_title="#Overspeed records",
+		# title="The speed distribution",
+		legend=dict(title="Type", x=0.92, y=0.99),
+		margin=dict(l=0, r=0, t=0, b=0),
+		xaxis=dict(tickmode="linear", range=[1, len(data_frame["speed"].unique())], dtick=1),
+	)
+	return speed_distribution_figure
+
+
 speed_distribution_figure = dcc.Graph(
-	figure=speed_distribution_figure,
 	id="speed_distribution_figure",
 	style={
-		"height": "15vh",
+		"height": "20vh",
 		"width": "100%",
 		# "margin-left": "51%",
 		# "margin-top": "-69vh",
 		# "display": "inline-block",
 		"padding": "0.1rem",
-		"background-color": "rgb(255, 255, 25)"
+		# "background-color": "rgb(255, 255, 25)"
 	},
 )
-
 
 # MAPS
 # Left
 # groupby operation
-zoom, lat, lon = 11.3, 52.06, 4.32
+zoom, lat, lon = 11.5, 52.06, 4.32
 data_frame = straight_overspeed[["switch_number", "latitude", "longitude", "speed", ]]
 data_frame = data_frame.groupby(["switch_number", "latitude", "longitude"]).count()
 data_frame.reset_index(inplace=True)
@@ -62,7 +69,7 @@ geographic_map_str = dl.Map(
 	center=[lat, lon], zoom=zoom,
 	style={
 		# size
-		"height": "35vh",
+		"height": "30vh",
 		"width": "49%",
 		"padding": "1rem",
 		"display": "inline-block",
@@ -105,7 +112,7 @@ geographic_map_trn = dl.Map(
 	center=[lat, lon], zoom=zoom,
 	style={
 		# size
-		"height": "35vh",
+		"height": "30vh",
 		"width": "49%",
 		"padding": "1rem",
 		"margin-left": "2%",
@@ -134,9 +141,19 @@ top10_trn_table = dbc.Table.from_dataframe(
 )
 
 
+@callback(
+	Output("overview_response", "children"),
+	Input("overview_logy_button", "value")
+)
+def overview_response(overview_logy_button):
+	return f"""
+		Hello, the histogram's y-axis is in {overview_logy_button} scaled now.
+	"""
+
+
 overview_layout = dbc.Container(
 	children=[
-		html.H2("Dashboard Overview", style={"text-align": "center"}),
+		html.H1("Dashboard Overview", style={"text-align": "center"}),
 		# Important numbers in the badges:
 		html.H3([
 			dbc.Badge(
@@ -147,7 +164,7 @@ overview_layout = dbc.Container(
 				style={"font-size": "Large"}),
 			dbc.Badge(
 				children=f"""
-					#straight overspeed records: {straight_overspeed.shape[0]:,} ({(straight_overspeed.shape[0]/straight_speed)*100:.1f}%)
+					#straight overspeed records: {straight_overspeed.shape[0]:,} ({(straight_overspeed.shape[0] / straight_speed) * 100:.1f}%)
 					""",
 				color="success", pill=True,
 				style={"font-size": "Large", "margin-left": "1rem"}),
@@ -159,16 +176,52 @@ overview_layout = dbc.Container(
 				style={"font-size": "Large", "margin-left": "1rem"}),
 		]
 		),
-		# html.Hr(id="useless"),
+		html.Hr(id="useless"),
 		# Speed distribution histogram:
-		html.P("Speed distribution histogram:"),
+		dbc.Container(children=[
+			html.H3("Speed distribution histogram:", style={"display": "inline-block"}),
+			dbc.RadioItems(
+				id="overview_logy_button",
+				options=["linear", "log"],
+				value="linear",
+				inline=True,
+				style={
+					"display": "inline-block",
+					"margin-left": "1rem",
+				}, ),
+			dbc.Badge(
+				id="overview_response",
+				color="primary",
+				pill=True,
+				style={
+					"display": "inline-block",
+					"margin-left": "2rem",
+					"font-size": "medium"
+				},
+			),
+		]),
 		speed_distribution_figure,
-		# html.Hr(),
+		html.Hr(),
 		# Map:
-		html.P("Map of HTM tram network:"),
+		html.H3("Maps of HTM tram network:"),
 		geographic_map_str, geographic_map_trn,
-		# html.Hr(),
-		html.P("Top-10 table:"),
+		dbc.Badge(
+			children="Straight overspeed", color="danger", pill=True,
+			style={"text-align": "left", "margin-left": "-1rem", "font-size": "small", "display": "inline-block"}),
+		dbc.Badge(
+			children="Turning overspeed", color="info", pill=True,
+			style={"margin-left": "40%", "font-size": "small", "display": "inline-block"}),
+		html.Hr(),
+		# Top-10 tables:
+		html.H3("Top-10 tables:"),
 		top10_str_table, top10_trn_table,
+		dbc.Badge(
+			children="Straight overspeed", color="danger", pill=True,
+			style={
+				"margin-top": "2rem",
+				"text-align": "left", "margin-left": "-1rem", "font-size": "small", "display": "inline-block"}),
+		dbc.Badge(
+			children="Turning overspeed", color="info", pill=True,
+			style={"margin-left": "40%", "font-size": "small", "display": "inline-block"}),
 	],
 )
