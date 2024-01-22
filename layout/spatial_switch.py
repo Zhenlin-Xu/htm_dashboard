@@ -14,28 +14,33 @@ from data_process.data import (
 	[Input("spatial_switch_type_input", "value"), ]
 )
 def gen_spatial_switch_map(spatial_switch_type_input):
-	data_frame = None
-	if spatial_switch_type_input == "overall":
+	data_frame, color = None, 'black'
+	if spatial_switch_type_input == "Overall":
 		data_frame = overspeed
-	elif spatial_switch_type_input == "straight":
+		color="black"
+	elif spatial_switch_type_input == "Straight":
 		data_frame = overspeed[overspeed["is_straight"] == True]
-	elif spatial_switch_type_input == "turning":
+		color="red"
+	elif spatial_switch_type_input == "Turning":
 		data_frame = overspeed[overspeed["is_straight"] == False]
-
+		color="blue"
+	data_frame = data_frame[["switch_number", "latitude", "longitude", "speed", ]]
+	data_frame = data_frame.groupby(["switch_number", "latitude", "longitude"]).count()
+	data_frame.reset_index(inplace=True)
 	overview_map_figure = dl.Map(
 		children=[
 			dl.TileLayer(),
-			*[
-				dl.CircleMarker(
-					center=[52.08, 4.30],
-					radius=100,
-					color="red",
-				)
-			]
+			*[dl.CircleMarker(
+				center=[row["latitude"], row["longitude"]],
+				radius=row["speed"] / 5000,
+				color=color) for _, row in data_frame.iterrows()],
 		],
 		center=[52.08, 4.30],
 		zoom=13,
-		style={"height": "83vh", "width": "24vw"}
+		style={
+			"height": "40vh",
+			"width": "100%"
+		}
 	)
 	return [overview_map_figure, ]
 
@@ -46,11 +51,11 @@ def gen_spatial_switch_map(spatial_switch_type_input):
 )
 def gen_spatial_switch_cdf(spatial_switch_type_input):
 	data_frame = None
-	if spatial_switch_type_input == "overall":
+	if spatial_switch_type_input == "Overall":
 		data_frame = overspeed
-	elif spatial_switch_type_input == "straight":
+	elif spatial_switch_type_input == "Straight":
 		data_frame = overspeed[overspeed["is_straight"] == True]
-	elif spatial_switch_type_input == "turning":
+	elif spatial_switch_type_input == "Turning":
 		data_frame = overspeed[overspeed["is_straight"] == False]
 	# groupby
 	data_frame = data_frame[["switch_number", "line"]].groupby("switch_number").count()
@@ -79,39 +84,52 @@ spatial_switch_layout = html.Div(
 		html.Hr(),
 		dbc.Container(
 			children=[
-				# dropdown button: type of overspeeding
+				# Type of overspeed:
+				html.P(html.B("Overspeed type:"), style={"display": "inline-block"}),
 				dcc.Dropdown(
-					options=["overall", "straight", "turning"], value="overall", id="spatial_switch_type_input",
-					style={"width": "5vw"}),
-				# horizontal line
-				# html.Hr(),
-				# Map
-				spatial_switch_map,
+					options=["Overall", "Straight", "Turning"],
+					value="Overall",
+					id="spatial_switch_type_input",
+					style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"}),
+				# Number of Switch:
+				html.P(html.B("#Switch:"), style={"display": "inline-block", "margin-left": "2rem"}),
+				dcc.Dropdown(
+					options=speed["switch_number"].unique(),
+					value="W127",
+					id="spatial_switch_input",
+					style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"},
+				)
 			],
 			style={
-				"width": "25vw",
-				"height": "90vh",
-				# "background-color": "rgb(255,220,10)",
-				"margin-left": "0.1vw",
-				"padding": "0.5vw",
-				# "display": "flex",
-			},
+				"display": "inline-block",
+			}
 		),
+		# Left part:
+		dbc.Container(spatial_switch_map, style={
+			"width": "100%", "height": "42vh",}),
+		html.Hr(),
+		# Right part:
 		dbc.Container(
 			children=[
 				# Cumulative density function
 				spatial_switch_cdf,
 			],
 			style={
-				"width": "20vw",
-				"height": "90vh",
-				# "background-color": "rgb(255,20,210)",
-				"margin-left": "25vw",
-				"margin-top": "-90vh",
-				"padding": "0.5vw",
-				"display": "flex",
+				"width": "30%",
+				# "height": "85vh",
+				"margin-left": "0%",
+				# "margin-top": "-100vh",
+				# "padding": "0.5vw",
+				# "background-color": "rgb(255,10,220)",
+				# "display": "inline-block",
 			},
 		)
 	],
-	className="content_container",
+	style={
+		"width": "90%",
+		"height": "100vh",
+		"margin-left": "10%",
+		"margin-top": "-100vh",
+		# "display": "inline-block",
+	}
 )

@@ -20,5 +20,13 @@ sidebar_layout = dbc.Nav(
 	vertical=True,
 	pills=True,
 	fill=True,
-	id="sidebar_container",
+	style={
+		"width": "10%",
+		"height": "100vh",
+		# text - align: left;
+		"padding": "1rem",
+		"font-size": "medium",
+		"background-color": "#bebebe",
+		"display": "inline-block",
+	}
 )

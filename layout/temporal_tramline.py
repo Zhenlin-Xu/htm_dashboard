@@ -104,7 +104,7 @@ def temporal_tramline_response(tramline_input, tramline_type_input, tramline_log
 
 tramline_input = dcc.Dropdown(
 	options=overspeed["line"].unique(), value=1, id="tramline_input",
-	style={"width": "5rem", "display": "inline-block"})
+	style={"width": "5rem", "margin-left": "1rem", "display": "inline-block"})
 type_input = dcc.Dropdown(
 	options=["overall", "straight", "turning"],
 	value="overall",
@@ -130,15 +130,37 @@ temporal_tramline_layout = html.Div(
 		dbc.Container(children=[
 			tramline_input,
 			type_input,
-			html.Div(id="temporal_tramline_response", style={"display": "inline-block", "margin-left": "2rem", }),
 		], style={"display": "inline-block"}),
+		dbc.Badge(
+			color="info",
+			pill=True,
+			id="temporal_tramline_response",
+			style={
+				"display": "inline-block",
+				"margin-left": "2rem",
+			}
+		),
 		heatmap_tramline,
 		html.Hr(),
 		dbc.Container(children=[
 			logY_button,
-			html.Div(id="temporal_tramline_response2", style={"display": "inline-block", "margin-left": "2rem", }),
 		]),
+		dbc.Badge(
+			color="info",
+			pill=True,
+			id="temporal_tramline_response2",
+			style={
+				"display": "inline-block",
+				"margin-left": "2rem",
+			}
+		),
 		histogram_tramline,
 	],
-	className="content_container",
+	style={
+		"width": "90%",
+		"height": "100vh",
+		"margin-left": "10%",
+		"margin-top": "-100vh",
+		# "display": "inline-block",
+	}
 )

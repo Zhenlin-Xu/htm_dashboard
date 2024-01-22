@@ -193,5 +193,11 @@ spatial_tramline_layout = html.Div(
 		# Lower plot:
 		histogram_speed_tramline,
 	],
-	className="content_container",
+	style={
+		"width": "90%",
+		"height": "100vh",
+		"margin-left": "10%",
+		"margin-top": "-100vh",
+		# "display": "inline-block",
+	}
 )

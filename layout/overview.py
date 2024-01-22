@@ -33,7 +33,7 @@ def gen_overview_speed_distribution(overview_logy_button):
 		xaxis_title="Speed (km/h)",
 		yaxis_title="#Overspeed records",
 		# title="The speed distribution",
-		legend=dict(title="Type", x=0.925, y=1),
+		legend=dict(title="Type", x=0.91, y=1),
 		margin=dict(l=0, r=0, t=0, b=0),
 		xaxis=dict(tickmode="linear", range=[1, len(data_frame["speed"].unique())], dtick=1),
 	)
@@ -164,19 +164,19 @@ overview_layout = dbc.Container(
 					#overspeed records: {overspeed.shape[0]:,} ({(overspeed.shape[0] / speed.shape[0]) * 100:.1f}%)
 					""",
 				color="danger", pill=True,
-				style={"font-size": "Large"}),
+				style={"font-size": "medium"}),
 			dbc.Badge(
 				children=f"""
 					#straight overspeed records: {straight_overspeed.shape[0]:,} ({(straight_overspeed.shape[0] / straight_speed) * 100:.1f}%)
 					""",
 				color="success", pill=True,
-				style={"font-size": "Large", "margin-left": "1rem"}),
+				style={"font-size": "medium", "margin-left": "1rem"}),
 			dbc.Badge(
 				children=f"""
 					#turning overspeed records: {turning_overspeed.shape[0]:,} ({(turning_overspeed.shape[0] / turning_speed) * 100:.1f}%)
 					""",
 				color="info", pill=True,
-				style={"font-size": "Large", "margin-left": "1rem"}),
+				style={"font-size": "medium", "margin-left": "1rem"}),
 		]
 		),
 		html.Hr(id="useless"),
@@ -221,10 +221,16 @@ overview_layout = dbc.Container(
 		dbc.Badge(
 			children="Straight overspeed", color="danger", pill=True,
 			style={
-				"margin-top": "2rem",
+				"margin-top": "3.5rem",
 				"text-align": "left", "margin-left": "-1rem", "font-size": "small", "display": "inline-block"}),
 		dbc.Badge(
 			children="Turning overspeed", color="info", pill=True,
 			style={"margin-left": "40%", "font-size": "small", "display": "inline-block"}),
 	],
+	style={
+		"width": "90%",
+		"margin-left": "10%",
+		"margin-top": "-100vh",
+		# "display": "inline-block",
+	}
 )

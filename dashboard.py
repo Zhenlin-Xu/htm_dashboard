@@ -26,8 +26,8 @@ app.layout = dbc.Container(
 		sidebar_layout,
 		content,
 	],
-	className="container",
-	fluid=True,
+	# fluid=True,
+	# style={"display": "inline-block"},
 )
 
 
