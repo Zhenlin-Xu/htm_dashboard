@@ -91,7 +91,7 @@ spatial_switch_layout = html.Div(
 			style={
 				"width": "25vw",
 				"height": "90vh",
-				"background-color": "rgb(255,220,10)",
+				# "background-color": "rgb(255,220,10)",
 				"margin-left": "0.1vw",
 				"padding": "0.5vw",
 				# "display": "flex",
@@ -105,7 +105,7 @@ spatial_switch_layout = html.Div(
 			style={
 				"width": "20vw",
 				"height": "90vh",
-				"background-color": "rgb(255,20,210)",
+				# "background-color": "rgb(255,20,210)",
 				"margin-left": "25vw",
 				"margin-top": "-90vh",
 				"padding": "0.5vw",
