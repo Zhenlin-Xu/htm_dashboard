@@ -100,10 +100,9 @@ def spatial_tramline_response2(
 		spatial_tramline_input,
 		spatial_tramline_logy_button
 ):
-	logy_button = "" if spatial_tramline_logy_button == "log" else "not"
 	return [
 		f"""Hello, you have selected tramline {spatial_tramline_input} 
-		and the histogram's y-axis is {logy_button} in log-scale :)"""
+		and the histogram's y-axis is in {spatial_tramline_logy_button}-scale :)"""
 	]
 
 
@@ -144,13 +143,18 @@ logY_button = dbc.RadioItems(
 
 histogram_speed_tramline = dcc.Graph(
 	id="spatial_tramline_speed_histogram",
-	style={"height": "40vh"})
+	style={"height": "35vh"})
 
 spatial_tramline_layout = html.Div(
 	children=[
 		# Header:
-		html.H2("Spatial analysis"),
-		html.H4([dbc.Badge("Tramline", color="danger", pill=True)]),
+		dbc.Container(
+			[
+				html.H2("Spatial analysis"),
+				html.H4([dbc.Badge("Tramline", color="danger", pill=True)]),
+			],
+			style={"padding": "0.3rem"}
+		),
 		html.Hr(),
 		# Upper options：
 		html.Div(
@@ -159,6 +163,8 @@ spatial_tramline_layout = html.Div(
 				tramline_type_input,
 			],
 		),
+		# Upper plot:
+		histogram_tramline,
 		dbc.Badge(
 			id="spatial_tramline_response",
 			color="info",
@@ -166,11 +172,9 @@ spatial_tramline_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
-				"font-size": "medium",
+				"font-size": "small",
 			},
 		),
-		# Upper plot:
-		histogram_tramline,
 		html.Hr(),
 		# Lower option:
 		dbc.Container(
@@ -180,6 +184,8 @@ spatial_tramline_layout = html.Div(
 				html.P(html.B("#Tramline:"), style={"display": "inline-block", "margin-left": "1rem"}),
 				tramline_input]
 		),
+		# Lower plot:
+		histogram_speed_tramline,
 		dbc.Badge(
 			id="spatial_tramline_response2",
 			color="info",
@@ -187,11 +193,9 @@ spatial_tramline_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
-				"font-size": "medium"
+				"font-size": "small"
 			},
 		),
-		# Lower plot:
-		histogram_speed_tramline,
 	],
 	style={
 		"width": "90%",

@@ -182,7 +182,7 @@ overview_layout = dbc.Container(
 		html.Hr(id="useless"),
 		# Speed distribution histogram:
 		dbc.Container(children=[
-			html.H3("Speed distribution histogram:", style={"display": "inline-block"}),
+			# html.H3("Speed distribution histogram:", style={"display": "inline-block"}),
 			dbc.RadioItems(
 				id="overview_logy_button",
 				options=["linear", "log"],
@@ -192,45 +192,48 @@ overview_layout = dbc.Container(
 					"display": "inline-block",
 					"margin-left": "1rem",
 				}, ),
-			dbc.Badge(
-				id="overview_response",
-				color="primary",
-				pill=True,
-				style={
-					"display": "inline-block",
-					"margin-left": "2rem",
-					"font-size": "medium"
-				},
-			),
+
 		]),
 		speed_distribution_figure,
+		dbc.Badge(
+			id="overview_response",
+			color="info",
+			pill=True,
+			style={
+				# "display": "inline-block",
+				"margin-left": "2rem",
+				"font-size": "small"
+			},
+		),
 		html.Hr(),
 		# Map:
-		html.H3("Maps of HTM tram network:"),
+		# html.H3("Maps of HTM tram network:"),
 		geographic_map_str, geographic_map_trn,
-		dbc.Badge(
-			children="Straight overspeed", color="danger", pill=True,
-			style={"text-align": "left", "margin-left": "-1rem", "font-size": "small", "display": "inline-block"}),
-		dbc.Badge(
-			children="Turning overspeed", color="info", pill=True,
-			style={"margin-left": "40%", "font-size": "small", "display": "inline-block"}),
-		html.Hr(),
-		# Top-10 tables:
-		html.H3("Top-10 tables:"),
 		top10_str_table, top10_trn_table,
 		dbc.Badge(
 			children="Straight overspeed", color="danger", pill=True,
 			style={
-				"margin-top": "3.5rem",
-				"text-align": "left", "margin-left": "-1rem", "font-size": "small", "display": "inline-block"}),
+				"margin-top": "6rem",
+				"text-align": "left", "margin-left": "0rem", "font-size": "small", "display": "inline-block"}),
 		dbc.Badge(
 			children="Turning overspeed", color="info", pill=True,
-			style={"margin-left": "40%", "font-size": "small", "display": "inline-block"}),
+			style={"margin-left": "38%", "font-size": "small", "display": "inline-block"}),
+		# html.Hr(),
+		# Top-10 tables:
+		# html.H3("Top-10 tables:"),
+		# dbc.Badge(
+		# 	children="Straight overspeed", color="danger", pill=True,
+		# 	style={
+		# 		"margin-top": "3rem",
+		# 		"text-align": "left", "margin-left": "0rem", "font-size": "small", "display": "inline-block"}),
+		# dbc.Badge(
+		# 	children="Turning overspeed", color="info", pill=True,
+		# 	style={"margin-left": "38%", "font-size": "small", "display": "inline-block"}),
 	],
 	style={
 		"width": "90%",
 		"margin-left": "10%",
 		"margin-top": "-100vh",
 		# "display": "inline-block",
-	}
+	},
 )

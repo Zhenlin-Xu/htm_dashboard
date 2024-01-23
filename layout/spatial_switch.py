@@ -10,120 +10,223 @@ from data_process.data import (
 
 
 @callback(
-	[Output("spatial_switch_map", "children"), ],
-	[Input("spatial_switch_type_input", "value"), ]
+	[Output("spatial_switch_map_str", "children"),
+	 Output("spatial_switch_map_trn", "children"),],
+	[Input("spatial_switch_useless", "value"), ]
 )
-def gen_spatial_switch_map(spatial_switch_type_input):
-	data_frame, color = None, 'black'
-	if spatial_switch_type_input == "Overall":
-		data_frame = overspeed
-		color="black"
-	elif spatial_switch_type_input == "Straight":
-		data_frame = overspeed[overspeed["is_straight"] == True]
-		color="red"
-	elif spatial_switch_type_input == "Turning":
-		data_frame = overspeed[overspeed["is_straight"] == False]
-		color="blue"
+def gen_spatial_switch_map_str(spatial_switch_useless):
+	data_frame = straight_overspeed
 	data_frame = data_frame[["switch_number", "latitude", "longitude", "speed", ]]
 	data_frame = data_frame.groupby(["switch_number", "latitude", "longitude"]).count()
 	data_frame.reset_index(inplace=True)
-	overview_map_figure = dl.Map(
+	map_str = dl.Map(
 		children=[
 			dl.TileLayer(),
 			*[dl.CircleMarker(
+				id="str_"+str(row["switch_number"]),
+				children=[
+					dl.Tooltip(html.P(f"""
+							#Switch   : {row["switch_number"]}\n
+							Coordinate: ({row["latitude"]}, {row["longitude"]})\n
+							#Records  : {row["speed"]}
+							""",
+							style={'white-space': 'pre-line'}
+							))
+				],
 				center=[row["latitude"], row["longitude"]],
-				radius=row["speed"] / 5000,
-				color=color) for _, row in data_frame.iterrows()],
+				radius=row["speed"] / 2000,
+				color="red") for _, row in data_frame.sort_values("switch_number", ascending=False).iterrows()],
 		],
 		center=[52.08, 4.30],
-		zoom=13,
+		zoom=12.5,
 		style={
-			"height": "40vh",
-			"width": "100%"
+			"height": "38vh",
+			"width": "60%",
 		}
 	)
-	return [overview_map_figure, ]
+	data_frame = turning_overspeed
+	data_frame = data_frame[["switch_number", "latitude", "longitude", "speed", ]]
+	data_frame = data_frame.groupby(["switch_number", "latitude", "longitude"]).count()
+	data_frame.reset_index(inplace=True)
+	map_trn = dl.Map(
+		children=[
+			dl.TileLayer(),
+			*[dl.CircleMarker(
+				id="trn_"+str(row["switch_number"]),
+				children=[
+					dl.Tooltip(html.P(f"""
+							#Switch   : {row["switch_number"]}\n
+							Coordinate: ({row["latitude"]}, {row["longitude"]})\n
+							#Records  : {row["speed"]}
+							""",
+							style={'white-space': 'pre-line'}
+							))
+				],
+				center=[row["latitude"], row["longitude"]],
+				radius=row["speed"] / 2000,
+				color="blue") for _, row in data_frame.sort_values("switch_number", ascending=False).iterrows()],
+		],
+		center=[52.08, 4.30],
+		zoom=12.5,
+		style={
+			"height": "38vh",
+			"width": "60%",
+		}
+	)
+	return [map_str, map_trn]
+
+@callback(
+	Output("spatial_switch_response1", "children"),
+	[Input("str_"+str(switch), 'n_clicks') for switch in straight_overspeed["switch_number"].unique()]
+)
+def gen_str_response(*n_clicks_list):
+	clicked_marker_id = dash.callback_context.triggered_id
+
+	if clicked_marker_id is None:
+		return "Select a marker by clicking on it."
+
+	return f"Straight overspeed: switch {clicked_marker_id[4:]} has been clicked."
 
 
 @callback(
-	[Output("spatial_switch_cdf", "figure"), ],
-	[Input("spatial_switch_type_input", "value"), ]
+	Output("spatial_switch_response2", "children"),
+	[Input("trn_"+str(switch), 'n_clicks') for switch in turning_overspeed["switch_number"].unique()]
 )
-def gen_spatial_switch_cdf(spatial_switch_type_input):
-	data_frame = None
-	if spatial_switch_type_input == "Overall":
-		data_frame = overspeed
-	elif spatial_switch_type_input == "Straight":
-		data_frame = overspeed[overspeed["is_straight"] == True]
-	elif spatial_switch_type_input == "Turning":
-		data_frame = overspeed[overspeed["is_straight"] == False]
+def gen_str_response(*n_clicks_list):
+	clicked_marker_id = dash.callback_context.triggered_id
+
+	if clicked_marker_id is None:
+		return "Select a marker by clicking on it."
+
+	return f"Turning overspeed: switch {clicked_marker_id[4:]} has been clicked."
+
+
+@callback(
+	[Output("spatial_switch_pdf_str", "figure"),],
+	 [Input("str_"+switch, 'n_clicks') for switch in straight_overspeed["switch_number"].unique()]
+)
+def gen_str_cdf(*n_clicks_list):
+	data_frame = straight_overspeed
+	clicked_marker_id = dash.callback_context.triggered_id
 	# groupby
-	data_frame = data_frame[["switch_number", "line"]].groupby("switch_number").count()
+	if clicked_marker_id is not None:
+		data_frame = data_frame[data_frame["switch_number"] == clicked_marker_id[4:]]
+
+	data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#day_in_year", "line"]].groupby("#day_in_year").count()
 	data_frame.reset_index(inplace=True)
 
-	cdf_figure = px.ecdf(
-		data_frame=data_frame,
-		x="line",
+	pdf_figure = px.histogram(
+		data_frame,
+		x="#day_in_year",
+		y="line",
+		nbins=55,
 	)
-	cdf_figure.update_layout(
+	pdf_figure.update_layout(
 		margin=dict(l=0, r=10, t=15, b=15),
-		xaxis_title=f"#{spatial_switch_type_input} overspeeding records.",
-		yaxis_title="",
-		# title=f"Cumulative density function"
+		xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"Time (in 2023)",
+		yaxis_title="#Overspeed records",
 	)
-	return [cdf_figure,]
+	return [pdf_figure]
 
 
-spatial_switch_map = dbc.Container(id="spatial_switch_map", style={"display": "initial"})
-spatial_switch_cdf = dcc.Graph(id="spatial_switch_cdf", style={"width": "24vw", "height": "35vh"})
+@callback(
+	[Output("spatial_switch_pdf_trn", "figure"),],
+	 [Input("trn_"+switch, 'n_clicks') for switch in turning_overspeed["switch_number"].unique()]
+)
+def gen_trn_cdf(*n_clicks_list):
+	data_frame = turning_overspeed
+	clicked_marker_id = dash.callback_context.triggered_id
+	# groupby
+	if clicked_marker_id is not None:
+		data_frame = data_frame[data_frame["switch_number"] == clicked_marker_id[4:]]
 
-spatial_switch_layout = html.Div(
+	data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#day_in_year", "line"]].groupby("#day_in_year").count()
+	data_frame.reset_index(inplace=True)
+
+	pdf_figure = px.histogram(
+		data_frame,
+		x="#day_in_year",
+		y="line",
+		nbins=55,
+	)
+	pdf_figure.update_layout(
+		margin=dict(l=0, r=10, t=15, b=15),
+		xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"Time (in 2023)",
+		yaxis_title="#Overspeed records",
+	)
+	return [pdf_figure]
+
+spatial_switch_map_str = dbc.Container(
+	id="spatial_switch_map_str",
+	style={
+		"height": "38vh",
+		"display": "inline-block",
+	}
+)
+spatial_switch_map_trn = dbc.Container(
+	id="spatial_switch_map_trn",
+	style={
+		"height": "38vh",
+		"display": "inline-block",
+	}
+)
+spatial_switch_pdf_str = dcc.Graph(
+	id="spatial_switch_pdf_str",
+	style={
+		"height": "36vh",
+		"width": "38%",
+		"margin-left": "60%",
+		"margin-top": "-100vh",
+		"display": "inline-block",
+	},
+)
+spatial_switch_pdf_trn = dcc.Graph(
+	id="spatial_switch_pdf_trn",
+	style={
+		"height": "36vh",
+		"width": "38%",
+		"margin-left": "60%",
+		"margin-top": "-100vh",
+		"display": "inline-block",
+	},
+)
+
+spatial_switch_layout = dbc.Container(
 	children=[
-		html.H2("Spatial analysis "),
-		html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
-		html.Hr(),
+		# Header:
 		dbc.Container(
-			children=[
-				# Type of overspeed:
-				html.P(html.B("Overspeed type:"), style={"display": "inline-block"}),
-				dcc.Dropdown(
-					options=["Overall", "Straight", "Turning"],
-					value="Overall",
-					id="spatial_switch_type_input",
-					style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"}),
-				# Number of Switch:
-				html.P(html.B("#Switch:"), style={"display": "inline-block", "margin-left": "2rem"}),
-				dcc.Dropdown(
-					options=speed["switch_number"].unique(),
-					value="W127",
-					id="spatial_switch_input",
-					style={"width": "10rem", "display": "inline-block", "margin-left": "1rem"},
-				)
+			[
+				html.H2("Spatial analysis"),
+				html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
 			],
-			style={
-				"display": "inline-block",
-			}
+			style={"padding": "0.3rem"}
 		),
+		html.Hr(id="spatial_switch_useless"),
 		# Left part:
-		dbc.Container(spatial_switch_map, style={
-			"width": "100%", "height": "42vh",}),
+		spatial_switch_map_str, spatial_switch_pdf_str,
+		dbc.Badge(id="spatial_switch_response1", color="danger", pill=True, style={"margin-left": "1rem"}),
 		html.Hr(),
+		spatial_switch_map_trn, spatial_switch_pdf_trn,
+		dbc.Badge(id="spatial_switch_response2", color="info", pill=True, style={"margin-left": "1rem"}),
 		# Right part:
-		dbc.Container(
-			children=[
-				# Cumulative density function
-				spatial_switch_cdf,
-			],
-			style={
-				"width": "30%",
-				# "height": "85vh",
-				"margin-left": "0%",
-				# "margin-top": "-100vh",
-				# "padding": "0.5vw",
-				# "background-color": "rgb(255,10,220)",
-				# "display": "inline-block",
-			},
-		)
+		# dbc.Container(
+		# 	children=[
+		# 		# Cumulative density function
+		# 		# ,
+		# 		# ,
+		# 	],
+		# 	style={
+		# 		"width": "29%",
+		# 		"height": "85vh",
+		# 		"margin-left": "70%",
+		# 		"margin-top": "-100vh",
+		# 		"display": "inline-block",
+		# 	},
+		# )
 	],
 	style={
 		"width": "90%",

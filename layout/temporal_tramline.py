@@ -43,6 +43,7 @@ def gen_temporal_tramline_heatmap(tramline_input, tramline_type_input):
 		coloraxis_colorbar=dict(len=0.5),
 		margin=dict(t=10, b=0, ),
 		title=dict(x=0.05, y=0.9),
+		xaxis_title="#Week", yaxis_title="#Day",
 		yaxis=dict(tickmode="linear", range=[1, 7], dtick=1),
 		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
@@ -56,6 +57,7 @@ def gen_temporal_tramline_heatmap(tramline_input, tramline_type_input):
           suppress_callback_exceptions=True)
 def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 	tramline_month_speed = speed[speed["line"] == tramline_input]
+	tramline_month_speed['is_straight'] = tramline_month_speed['is_straight'].map({True: 'Straight', False: 'Turning'}).astype(str)
 	tramline_month_speed = tramline_month_speed[["line", "speed", "is_straight", "month"]].groupby(
 		["is_straight", "month", "speed"]).count()
 	tramline_month_speed.reset_index(inplace=True)
@@ -66,7 +68,7 @@ def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 		color="is_straight",
 		animation_frame="month",
 		nbins=55,
-		log_y=tramline_logy_button,
+		log_y=True if tramline_logy_button == "log" else False,
 		# labels={
 		# 	"is_straight": ["Straight", "Turning"],
 		# }
@@ -95,7 +97,7 @@ def gen_temporal_tramline_histogram(tramline_input, tramline_logy_button):
 	Input("tramline_logy_button", "value"),
 ])
 def temporal_tramline_response(tramline_input, tramline_type_input, tramline_logy_button):
-	logy_button = "" if tramline_logy_button else "not"
+	logy_button = "" if tramline_logy_button == "log" else "not"
 	return [
 		f"Hello, you have selected tramline {tramline_input} and {tramline_type_input} overspeed for inspection.",
 		f"Hello, you have selected tramline {tramline_input} and the histogram's y-axis is {logy_button} in log-scale."
@@ -114,23 +116,39 @@ heatmap_tramline = dcc.Graph(
 	id="heatmap_tramline",
 	style={"height": "30vh"}
 )
-logY_button = daq.ToggleSwitch(
-	id="tramline_logy_button", value=False, label="log-y", labelPosition='right', size=50,
-	color="red", style={"margin-left": "1rem", "margin-top": "-1rem", "height": "2rem", "display": "inline-block", })
+logY_button = dbc.RadioItems(
+	options=["linear", "log"],
+	value="linear",
+	id="tramline_logy_button",
+	inline=True,
+	style={
+		"display": "inline-block",
+		"margin-left": "1rem",
+	}
+)
 histogram_tramline = dcc.Graph(
 	id="histogram_tramline",
-	style={"height": "45vh"}
+	style={"height": "40vh"}
 )
 
 temporal_tramline_layout = html.Div(
 	children=[
-		html.H2("Temporal analysis "),
-		html.H4([dbc.Badge("Tramline", color="danger", pill=True)]),
+		# Header:
+		dbc.Container(
+			[
+				html.H2("Temporal analysis"),
+				html.H4([dbc.Badge("Tramline", color="danger", pill=True)]),
+			],
+			style={"padding": "0.3rem"}
+		),
 		html.Hr(),
 		dbc.Container(children=[
+			html.P(html.B("#Tramline:"), style={"margin-left": "2rem", "display": "inline-block",}),
 			tramline_input,
+			html.P(html.B("Overspeed type:"), style={"margin-left": "2rem", "display": "inline-block", }),
 			type_input,
 		], style={"display": "inline-block"}),
+		heatmap_tramline,
 		dbc.Badge(
 			color="info",
 			pill=True,
@@ -138,13 +156,16 @@ temporal_tramline_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
+				"font-size": "small",
 			}
 		),
-		heatmap_tramline,
 		html.Hr(),
+		# Bottom part:
 		dbc.Container(children=[
+			html.P(html.B("Y axis:"), style={"margin-left": "2rem", "display": "inline-block", }),
 			logY_button,
 		]),
+		histogram_tramline,
 		dbc.Badge(
 			color="info",
 			pill=True,
@@ -152,9 +173,9 @@ temporal_tramline_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
+				"font-size": "small",
 			}
 		),
-		histogram_tramline,
 	],
 	style={
 		"width": "90%",

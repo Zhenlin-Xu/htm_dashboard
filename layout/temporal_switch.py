@@ -44,6 +44,7 @@ def gen_temporal_tramline_heatmap(switch_input, switch_type_input):
 		coloraxis_colorbar=dict(len=0.5),
 		margin=dict(t=10, b=0, ),
 		title=dict(x=0.05, y=0.9),
+		xaxis_title="#Week", yaxis_title="#Day",
 		yaxis=dict(tickmode="linear", range=[1, 7], dtick=1),
 		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
@@ -56,6 +57,7 @@ def gen_temporal_tramline_heatmap(switch_input, switch_type_input):
 	Input("switch_logy_button", "value")])
 def gen_temporal_tramline_histogram(switch_input, switch_logy_button):
 	tramline_month_speed = speed[speed["switch_number"] == switch_input]
+	tramline_month_speed['is_straight'] = tramline_month_speed['is_straight'].map({True: 'Straight', False: 'Turning'}).astype(str)
 	tramline_month_speed = tramline_month_speed[["switch_number", "speed", "is_straight", "month"]].groupby(
 		["is_straight", "month", "speed"]).count()
 	tramline_month_speed.reset_index(inplace=True)
@@ -66,16 +68,16 @@ def gen_temporal_tramline_histogram(switch_input, switch_logy_button):
 		color="is_straight",
 		animation_frame="month",
 		nbins=55,
-		log_y=switch_logy_button,
-		height=500,
+		log_y=True if switch_logy_button == "log" else False,
+		# height=400,
 	)
 	# add the speed limit vertical line.
 	histogram.add_vline(x=15, line_color="yellow", line_width=2)
 	# adjust the position of the legend.
 	histogram.update_layout(
-		legend=dict(x=0.9, y=0.99),
+		legend=dict(title="Type", x=0.9, y=0.99),
 		title=dict(text=f"Histogram of monthly speed distribution of tramline {switch_input}."),
-		xaxis_title="speed",
+		xaxis_title="Speed",
 		yaxis_title="#overspeed records",
 		xaxis=dict(tickmode="linear", range=[1, 55], dtick=2),
 	)
@@ -89,9 +91,9 @@ def gen_temporal_tramline_histogram(switch_input, switch_logy_button):
 	Input("switch_type_input", "value"),
 	Input("switch_logy_button", "value"),])
 def temporal_switch_response(switch_input, switch_type_input, switch_logy_button):
-	logy_button = "" if switch_logy_button else "not"
+	logy_button = "" if switch_logy_button == "log" else "not"
 	return [f"Hello, you have selected switch {switch_input} and {switch_type_input} overspeed for inspection.",
-			f"Hello, you have selected switch {switch_logy_button} and the histogram's y-axis is {logy_button} in log-scale."]
+			f"Hello, you have selected switch {switch_input} and the histogram's y-axis is {logy_button} in log-scale."]
 
 
 switch_input = dcc.Dropdown(
@@ -108,9 +110,16 @@ type_input = dcc.Dropdown(
 	# placeholder="Select the type of overspeed",
 	style={"width": "8rem", "display": "inline-block", "margin-left": "1rem"})
 
-logY_button = daq.ToggleSwitch(
-	id="switch_logy_button", value=False, label="log-y", labelPosition='right', size=50,
-	color="red", style={"margin-left": "1rem", "margin-top": "-1rem", "height": "2rem", "display": "inline-block",})
+logY_button = dbc.RadioItems(
+	options=["linear", "log"],
+	value="linear",
+	id="switch_logy_button",
+	inline=True,
+	style={
+		"display": "inline-block",
+		"margin-left": "1rem",
+	}
+)
 
 heatmap_switch = dcc.Graph(
 	id="heatmap_switch",
@@ -118,21 +127,30 @@ heatmap_switch = dcc.Graph(
 )
 histogram_switch = dcc.Graph(
 	id="histogram_switch",
-	style={"height": "45vh"}
+	style={"height": "40vh"}
 )
 
 temporal_switch_layout = html.Div(
 	children=[
-		html.H2("Temporal analysis "),
-		html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
+		# Header:
+		dbc.Container(
+			[
+				html.H2("Temporal analysis"),
+				html.H4([dbc.Badge("Switch", color="danger", pill=True)]),
+			],
+			style={"padding": "0.3rem"}
+		),
 		html.Hr(),
 		dbc.Container(
 			children=[
+				html.P(html.B("#Switch:"), style={"margin-left": "2rem", "display": "inline-block", }),
 				switch_input,
+				html.P(html.B("Overspeed type:"), style={"margin-left": "2rem", "display": "inline-block", }),
 				type_input,
 			],
 			style={"display": "inline-block"}
 		),
+		heatmap_switch,
 		dbc.Badge(
 			color="info",
 			pill=True,
@@ -140,16 +158,18 @@ temporal_switch_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
-				"font-size": "medium",
+				"font-size": "small",
 			},
 		),
-		heatmap_switch,
+		# bottom part:
 		html.Hr(),
 		dbc.Container(
 			children=[
+				html.P(html.B("Y axis:"), style={"margin-left": "2rem", "display": "inline-block", }),
 				logY_button,
 			]
 		),
+		histogram_switch,
 		dbc.Badge(
 			color="info",
 			pill=True,
@@ -157,9 +177,9 @@ temporal_switch_layout = html.Div(
 			style={
 				"display": "inline-block",
 				"margin-left": "2rem",
+				"font-size": "small",
 			}
 		),
-		histogram_switch,
 	],
 	style={
 		"width": "90%",
