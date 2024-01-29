@@ -40,7 +40,7 @@ def gen_spatial_switch_map_str(spatial_switch_useless):
 		center=[52.08, 4.30],
 		zoom=12.5,
 		style={
-			"height": "38vh",
+			"height": "36vh",
 			"width": "60%",
 		}
 	)
@@ -69,7 +69,7 @@ def gen_spatial_switch_map_str(spatial_switch_useless):
 		center=[52.08, 4.30],
 		zoom=12.5,
 		style={
-			"height": "38vh",
+			"height": "36vh",
 			"width": "60%",
 		}
 	)
@@ -102,8 +102,8 @@ def gen_str_response(*n_clicks_list):
 
 
 @callback(
-	[Output("spatial_switch_pdf_str", "figure"),],
-	 [Input("str_"+switch, 'n_clicks') for switch in straight_overspeed["switch_number"].unique()]
+	[Output("spatial_switch_pdf_str", "figure")],
+	 [Input("str_"+switch, 'n_clicks') for switch in straight_overspeed["switch_number"].unique()],
 )
 def gen_str_cdf(*n_clicks_list):
 	data_frame = straight_overspeed
@@ -112,24 +112,51 @@ def gen_str_cdf(*n_clicks_list):
 	if clicked_marker_id is not None:
 		data_frame = data_frame[data_frame["switch_number"] == clicked_marker_id[4:]]
 
-	data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
-	data_frame = data_frame[["#day_in_year", "line"]].groupby("#day_in_year").count()
+	# data_frame["#week"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#week", "line"]].groupby("#week").count()
 	data_frame.reset_index(inplace=True)
 
 	pdf_figure = px.histogram(
 		data_frame,
-		x="#day_in_year",
+		x="#week",
 		y="line",
-		nbins=55,
+		nbins=len(data_frame["#week"].unique()),
 	)
 	pdf_figure.update_layout(
-		margin=dict(l=0, r=10, t=15, b=15),
-		xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
-		xaxis_title=f"Time (in 2023)",
+		margin=dict(l=0, r=10, t=25, b=15),
+		# xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"#Week",
 		yaxis_title="#Overspeed records",
+		title=f"{clicked_marker_id[4:]}",
 	)
 	return [pdf_figure]
 
+@callback(
+	Output("spatial_switch_pdf_str", "figure", allow_duplicate=True,),
+	[Input("spatial_switch_str_input", "value")],
+	prevent_initial_call='initial_duplicate')
+def gen_str_cdf2(spatial_switch_str_input):
+	data_frame = straight_overspeed
+	data_frame = data_frame[data_frame["switch_number"] == spatial_switch_str_input]
+
+	# data_frame["#week"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#week", "line"]].groupby("#week").count()
+	data_frame.reset_index(inplace=True)
+
+	pdf_figure = px.histogram(
+		data_frame,
+		x="#week",
+		y="line",
+		nbins=len(data_frame["#week"].unique()),
+	)
+	pdf_figure.update_layout(
+		margin=dict(l=0, r=10, t=25, b=15),
+		# xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"#Week",
+		yaxis_title="#Overspeed records",
+		title=f"{spatial_switch_str_input}",
+	)
+	return pdf_figure
 
 @callback(
 	[Output("spatial_switch_pdf_trn", "figure"),],
@@ -142,55 +169,98 @@ def gen_trn_cdf(*n_clicks_list):
 	if clicked_marker_id is not None:
 		data_frame = data_frame[data_frame["switch_number"] == clicked_marker_id[4:]]
 
-	data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
-	data_frame = data_frame[["#day_in_year", "line"]].groupby("#day_in_year").count()
+	# data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#week", "line"]].groupby("#week").count()
 	data_frame.reset_index(inplace=True)
 
 	pdf_figure = px.histogram(
 		data_frame,
-		x="#day_in_year",
+		x="#week",
 		y="line",
-		nbins=55,
+		nbins=len(data_frame["#week"].unique()),
 	)
 	pdf_figure.update_layout(
-		margin=dict(l=0, r=10, t=15, b=15),
-		xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
-		xaxis_title=f"Time (in 2023)",
+		margin=dict(l=0, r=10, t=25, b=35),
+		# xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"#Week",
 		yaxis_title="#Overspeed records",
+		title=f"{clicked_marker_id[4:]}",
 	)
 	return [pdf_figure]
+
+@callback(
+	Output("spatial_switch_pdf_trn", "figure", allow_duplicate=True,),
+	[Input("spatial_switch_trn_input", "value")],
+	prevent_initial_call='initial_duplicate')
+def gen_trn_cdf2(spatial_switch_trn_input):
+	data_frame = turning_overspeed
+	data_frame = data_frame[data_frame["switch_number"] == spatial_switch_trn_input]
+
+	# data_frame["#day_in_year"] = data_frame["#week"] * 7 + data_frame["#day"]
+	data_frame = data_frame[["#week", "line"]].groupby("#week").count()
+	data_frame.reset_index(inplace=True)
+
+	pdf_figure = px.histogram(
+		data_frame,
+		x="#week",
+		y="line",
+		nbins=len(data_frame["#week"].unique()),
+	)
+	pdf_figure.update_layout(
+		margin=dict(l=0, r=10, t=55, b=25),
+		# xaxis=dict(tickmode="linear", range=[1, 365], dtick=50),
+		xaxis_title=f"#Week",
+		yaxis_title="#Overspeed records",
+		title=f"{spatial_switch_trn_input}",
+	)
+	return pdf_figure
 
 spatial_switch_map_str = dbc.Container(
 	id="spatial_switch_map_str",
 	style={
-		"height": "38vh",
+		"height": "36vh",
 		"display": "inline-block",
 	}
 )
 spatial_switch_map_trn = dbc.Container(
 	id="spatial_switch_map_trn",
 	style={
-		"height": "38vh",
+		"height": "36vh",
 		"display": "inline-block",
 	}
 )
+
+switch_str_input = dcc.Dropdown(
+	options=overspeed["switch_number"].unique(),
+	value="W127",
+	id="spatial_switch_str_input",
+	# placeholder="Select a switch",
+	style={"width": "5rem", "display": "inline-block", "margin-left": "0.5rem",})
+
+switch_trn_input = dcc.Dropdown(
+	options=overspeed["switch_number"].unique(),
+	value="W127",
+	id="spatial_switch_trn_input",
+	# placeholder="Select a switch",
+	style={"width": "5rem", "display": "inline-block", "margin-left": "0.5rem",})
+
 spatial_switch_pdf_str = dcc.Graph(
 	id="spatial_switch_pdf_str",
 	style={
-		"height": "36vh",
+		"height": "35vh",
 		"width": "38%",
 		"margin-left": "60%",
-		"margin-top": "-100vh",
+		"margin-top": "-110vh",
 		"display": "inline-block",
 	},
 )
 spatial_switch_pdf_trn = dcc.Graph(
 	id="spatial_switch_pdf_trn",
 	style={
-		"height": "36vh",
+		"height": "35vh",
 		"width": "38%",
 		"margin-left": "60%",
-		"margin-top": "-100vh",
+		"margin-top": "-110vh",
 		"display": "inline-block",
 	},
 )
@@ -206,27 +276,16 @@ spatial_switch_layout = dbc.Container(
 			style={"padding": "0.3rem"}
 		),
 		html.Hr(id="spatial_switch_useless"),
-		# Left part:
-		spatial_switch_map_str, spatial_switch_pdf_str,
+		html.P(html.B("#Switch:"), style={"margin-left": "0.5rem", "display": "inline-block", }),
+		switch_str_input,
 		dbc.Badge(id="spatial_switch_response1", color="danger", pill=True, style={"margin-left": "1rem"}),
+		spatial_switch_map_str, spatial_switch_pdf_str,
 		html.Hr(),
-		spatial_switch_map_trn, spatial_switch_pdf_trn,
+		html.P(html.B("#Switch:"), style={"margin-left": "1rem", "display": "inline-block", }),
+		switch_trn_input,
 		dbc.Badge(id="spatial_switch_response2", color="info", pill=True, style={"margin-left": "1rem"}),
-		# Right part:
-		# dbc.Container(
-		# 	children=[
-		# 		# Cumulative density function
-		# 		# ,
-		# 		# ,
-		# 	],
-		# 	style={
-		# 		"width": "29%",
-		# 		"height": "85vh",
-		# 		"margin-left": "70%",
-		# 		"margin-top": "-100vh",
-		# 		"display": "inline-block",
-		# 	},
-		# )
+		spatial_switch_map_trn, spatial_switch_pdf_trn,
+
 	],
 	style={
 		"width": "90%",

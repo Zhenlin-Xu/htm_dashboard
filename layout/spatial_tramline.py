@@ -22,6 +22,7 @@ def gen_spatial_tramline_histogram(spatial_tramline_type_input):
 	elif spatial_tramline_type_input == "turning":
 		data_frame = overspeed[["line", "speed", "is_straight"]]
 		data_frame = data_frame[data_frame["is_straight"] == False]
+	data_frame['is_straight'] = data_frame['is_straight'].map({True: 'Straight', False: 'Turning'}).astype(str)
 
 	tramline_grpby = data_frame.groupby(["is_straight", "line"]).count()
 	tramline_grpby.reset_index(inplace=True)
